@@ -49,7 +49,7 @@ self.addEventListener('activate', event => {
   );
 });
 
-
+debugger;
 const token = self.XXX;
 
 async function fetchPipeline(branch) {
