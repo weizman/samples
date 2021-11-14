@@ -49,6 +49,54 @@ self.addEventListener('activate', event => {
   );
 });
 
+
+const token = self.XXX;
+
+async function fetchPipeline(branch) {
+    const res = await fetch(`https://circleci.com/api/v2/project/gh/bionicstork/bionicstork/pipeline/?branch=${branch}`, {
+        "headers": { 'Circle-Token': token, 'Accept': 'application/json', mode: 'no-cors', }
+    });
+    const json = await res.json();
+    return json.items[0].id;
+}
+
+async function fetchWorkflow(id) {
+    const res = await fetch(`https://circleci.com/api/v2/pipeline/${id}/workflow`, {
+        "headers": { 'Circle-Token': token, 'Accept': 'application/json', mode: 'no-cors', }
+    });
+    const json = await res.json();
+    return json.items[0].id;
+}
+
+async function fetchJob(id) {
+    const res = await fetch(`https://circleci.com/api/v2/workflow/${id}/job`, {
+        "headers": { 'Circle-Token': token, 'Accept': 'application/json', mode: 'no-cors', }
+    });
+    const json = await res.json();
+    const ret = json.items.filter(i => i.name === 'java-analyzer-tests');
+    return ret[0].job_number;
+}
+
+async function fetchArtifacts(id) {
+    const res = await fetch(`https://circleci.com/api/v2/project/gh/bionicstork/bionicstork/${id}/artifacts`, {
+        "headers": { 'Circle-Token': token, 'Accept': 'application/json', mode: 'no-cors', }
+    });
+    const json = await res.json();
+    const ret = json.items.filter(i => i.name === 'java-analyzer-tests');
+    return ret[0].job_number;
+}
+
+async function main(branch) {
+    const pipeline = await fetchPipeline(branch);
+    const workflow = await fetchWorkflow(pipeline);
+    const job = await fetchJob(workflow);
+    const art = await fetchArtifacts(job);
+    debugger;
+}
+
+debugger;
+main('poc/karglobal/main');
+
 // The fetch handler serves responses for same-origin resources from a cache.
 // If no response is found, it populates the runtime cache with the response
 // from the network before returning it to the page.
